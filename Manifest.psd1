@@ -22,7 +22,7 @@ CompanyName = 'Thor Dreier'
 Copyright = 'MIT License'
 
 # Description of the functionality provided by this module
-Description = 'Calculate the next version number'
+Description = 'PowerShell functions for calculating version numbers'
 
 # Minimum version of the Windows PowerShell engine required by this module
 # PowerShellVersion = ''
