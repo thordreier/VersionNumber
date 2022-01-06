@@ -57,26 +57,51 @@ function Get-CalculatedVersionNumber
     [CmdletBinding()]
     param
     (
-        [Parameter(Position=0)]
+        [Parameter(ParameterSetName='Major',            Mandatory = $true, Position=0)]
+        [Parameter(ParameterSetName='Minor',            Mandatory = $true, Position=0)]
+        [Parameter(ParameterSetName='Build',            Mandatory = $true, Position=0)]
+        [Parameter(ParameterSetName='Revision',         Mandatory = $true, Position=0)]
         [System.Version]
         $Version,
 
-        [Parameter(ParameterSetName='Major', Mandatory = $true)]
+        [Parameter(ParameterSetName='ManifestMajor',    Mandatory = $true)]
+        [Parameter(ParameterSetName='ManifestMinor',    Mandatory = $true)]
+        [Parameter(ParameterSetName='ManifestBuild',    Mandatory = $true)]
+        [Parameter(ParameterSetName='ManifestRevision', Mandatory = $true)]
+        [System.String]
+        $Manifest,
+
+        [Parameter(ParameterSetName='Major',            Mandatory = $true)]
+        [Parameter(ParameterSetName='ManifestMajor',    Mandatory = $true)]
         [System.Management.Automation.SwitchParameter]
         $Major,
 
-        [Parameter(ParameterSetName='Minor', Mandatory = $true)]
+        [Parameter(ParameterSetName='Minor',            Mandatory = $true)]
+        [Parameter(ParameterSetName='ManifestMinor',    Mandatory = $true)]
         [System.Management.Automation.SwitchParameter]
         $Minor,
 
-        [Parameter(ParameterSetName='Build', Mandatory = $true)]
+        [Parameter(ParameterSetName='Build',            Mandatory = $true)]
+        [Parameter(ParameterSetName='ManifestBuild',    Mandatory = $true)]
         [Alias('Patch')]
         [System.Management.Automation.SwitchParameter]
         $Build,
 
-        [Parameter(ParameterSetName='Revision', Mandatory = $true)]
+        [Parameter(ParameterSetName='Revision',         Mandatory = $true)]
+        [Parameter(ParameterSetName='ManifestRevision', Mandatory = $true)]
         [System.Management.Automation.SwitchParameter]
-        $Revision
+        $Revision,
+
+        [Parameter()]
+        [System.Management.Automation.SwitchParameter]
+        $Trim,
+
+        [Parameter(ParameterSetName='ManifestMajor'   )]
+        [Parameter(ParameterSetName='ManifestMinor'   )]
+        [Parameter(ParameterSetName='ManifestBuild'   )]
+        [Parameter(ParameterSetName='ManifestRevision')]
+        [System.Management.Automation.SwitchParameter]
+        $DryRun
     )
 
     function _Add([System.Int32]$v, [System.Int32]$i=1)
@@ -114,56 +139,68 @@ function Get-CalculatedVersionNumber
         Write-Verbose -Message "Input version: $Version"
         Write-Verbose -Message ('Input ParameterSetName: ' + $PsCmdlet.ParameterSetName)
 
-        switch ($PsCmdlet.ParameterSetName)
+        if ($Manifest)
         {
-            'Major'
-            {
-                Write-Verbose -Message "Bumping up major number"
-                $vMajor    = _Add $Version.Major
-                $vMinor    = _Rst $Version.Minor
-                $vBuild    = _Rst $Version.Build
-                $vRevision = _Rst $Version.Revision
-            }
-
-            'Minor'
-            {
-                Write-Verbose -Message "Bumping up minor number"
-                $vMajor    =      $Version.Major
-                $vMinor    = _Add $Version.Minor
-                $vBuild    = _Rst $Version.Build
-                $vRevision = _Rst $Version.Revision
-            }
-
-            'Build'
-            {
-                Write-Verbose -Message "Bumping up build number"
-                $vMajor    =      $Version.Major
-                $vMinor    =      $Version.Minor
-                $vBuild    = _Add $Version.Build
-                $vRevision = _Rst $Version.Revision
-            }
-
-            'Revision'
-            {
-                Write-Verbose -Message "Bumping up revision number"
-                $vMajor    =      $Version.Major
-                $vMinor    =      $Version.Minor
-                $vBuild    = _Add $Version.Build 0
-                $vRevision = _Add $Version.Revision
-            }
+            Write-Verbose -Message "Getting version from manifest file <$Manifest>"
+            $Version = (Test-ModuleManifest -Path $Manifest).Version
         }
 
-        if ($vRevision -ne -1)
+        Write-Verbose -Message "Version number before changes: $Version"
+
+        if ($Major)
         {
-            $return = New-Object -TypeName 'Version' -ArgumentList $vMajor, $vMinor, $vBuild, $vRevision
+            Write-Verbose -Message 'Bumping up major number'
+            $vMajor    = _Add $Version.Major
+            $vMinor    = _Rst $Version.Minor
+            $vBuild    = _Rst $Version.Build
+            $vRevision = _Rst $Version.Revision
         }
-        elseif ($vBuild -ne -1)
+        elseif ($Minor)
         {
-            $return = New-Object -TypeName 'Version' -ArgumentList $vMajor, $vMinor, $vBuild
+            Write-Verbose -Message 'Bumping up minor number'
+            $vMajor    =      $Version.Major
+            $vMinor    = _Add $Version.Minor
+            $vBuild    = _Rst $Version.Build
+            $vRevision = _Rst $Version.Revision
+        }
+        elseif ($Build)
+        {
+            Write-Verbose -Message 'Bumping up build number'
+            $vMajor    =      $Version.Major
+            $vMinor    =      $Version.Minor
+            $vBuild    = _Add $Version.Build
+            $vRevision = _Rst $Version.Revision
+        }
+        elseif ($Revision)
+        {
+            Write-Verbose -Message 'Bumping up revision number'
+            $vMajor    =      $Version.Major
+            $vMinor    =      $Version.Minor
+            $vBuild    = _Add $Version.Build 0
+            $vRevision = _Add $Version.Revision
         }
         else
         {
-            $return = New-Object -TypeName 'Version' -ArgumentList $vMajor, $vMinor
+            throw 'This should never happen'
+        }
+
+        if (-not ($vRevision -eq -1 -or ($vRevision -eq 0 -and $Trim)))
+        {
+            $return = New-Object -TypeName 'System.Version' -ArgumentList $vMajor, $vMinor, $vBuild, $vRevision
+        }
+        elseif (-not ($vBuild -eq -1 -or ($vBuild -eq 0 -and $Trim)))
+        {
+            $return = New-Object -TypeName 'System.Version' -ArgumentList $vMajor, $vMinor, $vBuild
+        }
+        else
+        {
+            $return = New-Object -TypeName 'System.Version' -ArgumentList $vMajor, $vMinor
+        }
+
+        if ($Manifest -and -not $DryRun)
+        {
+            Write-Verbose -Message "Updating version in manifest file <$Manifest>"
+            Update-ModuleManifest -Path $Manifest -ModuleVersion $return
         }
 
         # Return
