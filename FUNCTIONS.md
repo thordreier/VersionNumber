@@ -21,13 +21,21 @@ SYNOPSIS
     
     
 SYNTAX
-    Get-CalculatedVersionNumber [[-Version] <Version>] -Major [<CommonParameters>]
+    Get-CalculatedVersionNumber [-Version] <Version> -Revision [-Trim] [<CommonParameters>]
     
-    Get-CalculatedVersionNumber [[-Version] <Version>] -Minor [<CommonParameters>]
+    Get-CalculatedVersionNumber [-Version] <Version> -Build [-Trim] [<CommonParameters>]
     
-    Get-CalculatedVersionNumber [[-Version] <Version>] -Build [<CommonParameters>]
+    Get-CalculatedVersionNumber [-Version] <Version> -Minor [-Trim] [<CommonParameters>]
     
-    Get-CalculatedVersionNumber [[-Version] <Version>] -Revision [<CommonParameters>]
+    Get-CalculatedVersionNumber [-Version] <Version> -Major [-Trim] [<CommonParameters>]
+    
+    Get-CalculatedVersionNumber -Manifest <String> -Revision [-Trim] [-DryRun] [<CommonParameters>]
+    
+    Get-CalculatedVersionNumber -Manifest <String> -Build [-Trim] [-DryRun] [<CommonParameters>]
+    
+    Get-CalculatedVersionNumber -Manifest <String> -Minor [-Trim] [-DryRun] [<CommonParameters>]
+    
+    Get-CalculatedVersionNumber -Manifest <String> -Major [-Trim] [-DryRun] [<CommonParameters>]
     
     
 DESCRIPTION
@@ -41,6 +49,8 @@ DESCRIPTION
 
 PARAMETERS
     -Version <Version>
+        
+    -Manifest <String>
         
     -Major [<SwitchParameter>]
         Bump up major number
@@ -65,6 +75,10 @@ PARAMETERS
         - '1.2.3.4' returns '1.2.3.5'
         - '6.4.2'   returns '6.4.2.1' - one extra digit is added to output
         - '3.5'     returns '3.5.0.1' - two extra digits are added to output
+        
+    -Trim [<SwitchParameter>]
+        
+    -DryRun [<SwitchParameter>]
         
     <CommonParameters>
         This cmdlet supports the common parameters: Verbose, Debug,
