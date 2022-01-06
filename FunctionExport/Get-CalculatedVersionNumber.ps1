@@ -5,12 +5,20 @@ function Get-CalculatedVersionNumber
             Calculates the next version number
 
         .DESCRIPTION
-            Calculates the next version number. It tries to keep the same number of digits in output as in input.
+            Calculates the next version number.
+            It tries to keep the same number of digits in output as in input (unless -Trim is set).
             It returns [System.Version] that can easily be converted to string (see examples)
 
             The list of approved verbs in PowerShell really should include somthing like "Caluclate"!
             This function should normally be available with the alias Calculate-VersionNumber
             (now that Calculate isn't an approved verb)
+
+        .PARAMETER Version
+            Version number
+
+        .PARAMETER Manifest
+            Read version number from manifest (.psd1) file
+            Unless -DryRun is set, it will update file with new version number
 
         .PARAMETER Major
             Bump up major number
@@ -35,6 +43,12 @@ function Get-CalculatedVersionNumber
             - '1.2.3.4' returns '1.2.3.5'
             - '6.4.2'   returns '6.4.2.1' - one extra digit is added to output
             - '3.5'     returns '3.5.0.1' - two extra digits are added to output
+
+        .PARAMETER Trim
+            Removes zeroes
+
+        .PARAMETER DryRun
+            Don't update source (manifest) file with new version number
 
         .EXAMPLE
             Get-CalculatedVersionNumber -Version 8.6.4.2 -Minor

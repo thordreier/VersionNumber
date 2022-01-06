@@ -39,7 +39,8 @@ SYNTAX
     
     
 DESCRIPTION
-    Calculates the next version number. It tries to keep the same number of digits in output as in input.
+    Calculates the next version number.
+    It tries to keep the same number of digits in output as in input (unless -Trim is set).
     It returns [System.Version] that can easily be converted to string (see examples)
     
     The list of approved verbs in PowerShell really should include somthing like "Caluclate"!
@@ -49,8 +50,11 @@ DESCRIPTION
 
 PARAMETERS
     -Version <Version>
+        Version number
         
     -Manifest <String>
+        Read version number from manifest (.psd1) file
+        Unless -DryRun is set, it will update file with new version number
         
     -Major [<SwitchParameter>]
         Bump up major number
@@ -77,8 +81,10 @@ PARAMETERS
         - '3.5'     returns '3.5.0.1' - two extra digits are added to output
         
     -Trim [<SwitchParameter>]
+        Removes zeroes
         
     -DryRun [<SwitchParameter>]
+        Don't update source (manifest) file with new version number
         
     <CommonParameters>
         This cmdlet supports the common parameters: Verbose, Debug,
