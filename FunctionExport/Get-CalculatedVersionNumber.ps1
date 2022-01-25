@@ -45,7 +45,7 @@ function Get-CalculatedVersionNumber
             - '3.5'     returns '3.5.0.1' - two extra digits are added to output
 
         .PARAMETER Trim
-            Removes zeroes
+            Removes trailing zeroes
 
         .PARAMETER DryRun
             Don't update source (manifest) file with new version number

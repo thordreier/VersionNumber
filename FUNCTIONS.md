@@ -81,7 +81,7 @@ PARAMETERS
         - '3.5'     returns '3.5.0.1' - two extra digits are added to output
         
     -Trim [<SwitchParameter>]
-        Removes zeroes
+        Removes trailing zeroes
         
     -DryRun [<SwitchParameter>]
         Don't update source (manifest) file with new version number
